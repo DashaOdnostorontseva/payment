@@ -1,4 +1,7 @@
-<html>
+<!DOCTYPE html>
+<html lang="ru">
+  {% load static %}
+  <script src="{% static 'js/itemScript.js' %}"></script>
   <script src="https://js.stripe.com/clover/stripe.js"></script>
   <head>
     <title>{{ item.name }}</title>
@@ -7,21 +10,6 @@
     <h1>{{ item.name }}</h1>
     <p>{{ item.description }}</p>
     <p>{{ item.price }}</p>
-    <button id="buy-button">Buy</button>
-    <script type="text/javascript">
-      var stripe = Stripe('pk_test_51SUYNSHCURaG7sPw4I7XOggMOLhM1nQuKbDB6JWPeHhZtEdNufR1oDkNL89LA5snzYYuhYHgY0QY28km0c0nBkmH00O3Oj8Lat');
-      var buyButton = document.getElementById('buy-button');
-      buyButton.addEventListener('click', function() {
-        fetch('/buy/{{ item.id }}', {method: 'GET'})
-        .then(response => {
-          console.log('Raw response:', response);
-          return response.json()
-      })
-        .then(data => {
-          console.log('Parsed JSON:', data);
-          window.location.href = data.sessionUrl
-        })
-      });
-    </script>
+    <button id="buy-button" item-id ="{{ item.id }}">Buy</button>
   </body>
 </html>
