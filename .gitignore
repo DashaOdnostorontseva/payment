@@ -1,0 +1,53 @@
+# Django
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.sqlite3
+db.sqlite3
+*.log
+*.pot
+*.mo
+*.py[cod]
+*.swp
+*.swo
+*.DS_Store
+
+# Local environment
+.env
+.env.local
+.env.*.local
+
+# Virtualenv
+venv/
+env/
+venv.bak/
+.env.bak/
+
+# VSCode #
+.vscode/
+
+# Python builds
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django-related or generated files
+media/
+staticfiles/
+static/
+
+# Byte-compiled files
+*.py[cod]
+__pycache__/
