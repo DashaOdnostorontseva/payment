@@ -43,11 +43,6 @@ var/
 .installed.cfg
 *.egg
 
-# Django-related or generated files
-media/
-staticfiles/
-static/
-
 # Byte-compiled files
 *.py[cod]
 __pycache__/
