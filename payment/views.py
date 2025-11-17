@@ -17,7 +17,7 @@ def buy(request, id):
 
         price = stripe.Price.create(
             currency="rub",
-            unit_amount=item.price,
+            unit_amount=item.price*100,
             product=product.id
         )
 
