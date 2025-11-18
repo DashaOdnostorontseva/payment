@@ -11,7 +11,7 @@
     <ul>
         {% for i in order.items.all %}
             <li>
-                {{ i.item.name }} - {{ i.quantity }} шт. * {{ i.item.price }} = {{ i.total }}
+                {{ i.item.name }} - {{ i.quantity }} шт. * {{ i.item.price }} {{ i.item.currency }} = {{ i.total }} {{ i.item.currency }}
             </li>
         {% endfor %}
     </ul>
