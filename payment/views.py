@@ -12,6 +12,12 @@ stripe.api_key = settings.SECRET_KEY_STRIPE
 def main(request):
     return render(request, "main.html")
 
+def success(request):
+    return render(request, "success.html")
+
+def cancel(request):
+    return render(request, "cancel.html")
+
 def pay_item(request, id):
     print("call pay_item", pay_item)
     if request.method == "GET":
@@ -20,8 +26,8 @@ def pay_item(request, id):
         price_id = stripeScript.get_stripe_price_id(item)
         
         session = stripe.checkout.Session.create(
-            success_url="https://example.com/success",
-            cancel_url="https://example.com/cancel",
+            success_url=request.build_absolute_url("/success") ,
+            cancel_url=request.build_absolute_url("/cancel"),
             line_items=[{"price": price_id, "quantity": 1}],
             mode="payment",
         )
@@ -65,8 +71,8 @@ def pay_order(request, id):
             discount_id = stripeScript.get_stripe_discount_id(order.discount)
 
         session = stripe.checkout.Session.create(
-            success_url="https://example.com/success",
-            cancel_url="https://example.com/cancel",
+            success_url=request.build_absolute_uri("/success") ,
+            cancel_url=request.build_absolute_uri("/cancel"),
             line_items=items,
             mode="payment",
             discounts=[{"coupon":discount_id}]
