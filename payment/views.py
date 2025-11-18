@@ -8,6 +8,9 @@ from .models import Item, Order
 
 stripe.api_key = settings.SECRET_KEY_STRIPE
 
+def main(request):
+    return render(request, "main.html")
+
 def create_stripe_product(item):
     print(create_stripe_product)
     product = stripe.Product.create(name=item.name)
