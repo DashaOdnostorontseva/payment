@@ -4,14 +4,19 @@ document.addEventListener('DOMContentLoaded', function() {
     var url = "/pay_order/" + orderId
     console.log(url)
     buyButton.addEventListener('click', function() {
-    fetch(url, {method: 'GET'})
-    .then(response => {
-        console.log('Raw response:', response);
-        return response.json()
-    })
-    .then(data => {
-        console.log('Parsed JSON:', data);
-        window.location.href = data.sessionUrl
-    })
+        fetch(url, {method: 'GET'})
+        .then(response => {
+            console.log('Raw response:', response);
+            return response.json()
+        })
+        .then(data => {
+            console.log('Parsed JSON:', data);
+            if (data.sessionUrl){
+                window.location.href = data.sessionUrl
+            }
+            else{
+                alert(data.errorText)
+            }
+        })
     })
 })

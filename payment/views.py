@@ -49,13 +49,13 @@ def item(request, id):
 def pay_order(request, id):
     if request.method == "GET":
         order = get_object_or_404(Order, id=id)
-        items = list()
+        
         tax_id = None
-        discount_id = None
-
         if order.tax:
             tax_id = stripeScript.get_stripe_tax_ids(order.tax)
-
+        
+        items = list()
+        currencies = set()
         for i in order.items.select_related("item").all():
             item = i.item
             price_id = stripeScript.get_stripe_price_id(item)
@@ -67,6 +67,12 @@ def pay_order(request, id):
 
             items.append(item_data)
 
+            currencies.add(item.currency)
+
+        if (len(currencies) > 1):
+            return JsonResponse({"errorText": "В вашем заказе добавлены товары в разных валютах, оплата невозможна."})
+
+        discount_id = None
         if order.discount:
             discount_id = stripeScript.get_stripe_discount_id(order.discount)
 
