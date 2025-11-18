@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     var buyButton = document.getElementById('buy-button');
     var itemId = buyButton.getAttribute('item-id')
-    var url = "/buy/" + itemId
+    var url = "/pay_item/" + itemId
     buyButton.addEventListener('click', function() {
     fetch(url, {method: 'GET'})
     .then(response => {
