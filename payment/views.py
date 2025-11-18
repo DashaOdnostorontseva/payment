@@ -78,8 +78,7 @@ def pay_order(request, id):
             discounts=[{"coupon":discount_id}]
         )
 
-        order.stripe_session_id = session.id
-        order.save(update_fields=["stripe_session_id"])
+        order._set_stripe_session_id(session.id)
 
         return JsonResponse({"sessionUrl": session.url})
     else:

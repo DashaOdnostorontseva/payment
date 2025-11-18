@@ -65,6 +65,10 @@ class Order(models.Model):
         self.total_amount = self.total
         self.save(update_fields=["total_amount"])
 
+    def _set_stripe_session_id(self, session_id):
+        self.stripe_session_id = session_id
+        self.save(update_fields=["stripe_session_id"])
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, help_text="ID заказа из таблицы Order", on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, help_text="ID товара из таблицы Item", on_delete=models.PROTECT)
