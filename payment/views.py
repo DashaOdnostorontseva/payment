@@ -4,7 +4,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse, HttpResponseNotAllowed
 
-from .models import Item
+from .models import Item, Order
 
 stripe.api_key = settings.SECRET_KEY_STRIPE
 
@@ -41,8 +41,8 @@ def get_stripe_price_id(item):
     return price_id
 
 
-def buy(request, id):
-    print("call buy", buy)
+def pay_item(request, id):
+    print("call pay_item", pay_item)
     if request.method == "GET":
         item = get_object_or_404(Item, id=id)
         
@@ -67,5 +67,38 @@ def item(request, id):
     if request.method == "GET":
         item_obj = get_object_or_404(Item, id=id)
         return render(request, "item.html", {"item":item_obj})
+    else:
+        return HttpResponseNotAllowed(["GET"])
+    
+
+def pay_order(request, id):
+    if request.method == "GET":
+        order = get_object_or_404(Order, id=id)
+        items = list()
+
+        for i in order.items.select_related("item").all():
+            item = i.item
+            price_id = get_stripe_price_id(item)
+
+            items.append({"price":price_id, "quantity":i.quantity})
+
+        session = stripe.checkout.Session.create(
+            success_url="https://example.com/success",
+            cancel_url="https://example.com/cancel",
+            line_items=items,
+            mode="payment",
+        )
+
+        order.stripe_session_id = session.id
+        order.save(update_fields=["stripe_session_id"])
+
+        return JsonResponse({"sessionUrl": session.url})
+    else:
+        return HttpResponseNotAllowed(["GET"])
+    
+def order(request, id):
+    if request.method == "GET":
+        order = get_object_or_404(Order, id=id)
+        return render(request, "order.html", {"order":order})
     else:
         return HttpResponseNotAllowed(["GET"])
