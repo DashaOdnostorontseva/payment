@@ -17,7 +17,7 @@ def create_stripe_price(item, product_id):
         unit_amount=int(item.price * 100),
         product=product_id
     )
-    item._add_stripe_price_id(price.id)
+    item._set_stripe_price_id(price.id)
 
     return price.id
 

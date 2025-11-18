@@ -12,7 +12,7 @@ class Item(models.Model):
         self.stripe_product_id = product_id
         self.save(update_fields=["stripe_product_id"])
 
-    def _add_stripe_price_id(self, price_id):
+    def _set_stripe_price_id(self, price_id):
         self.stripe_price_id = price_id
         self.save(update_fields=["stripe_price_id"])
 
