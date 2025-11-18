@@ -1,12 +1,16 @@
 from django.db import models
 
 class Item(models.Model):
+    CURRENCY = [("rub", "RUB"), ("eur", "EUR")]
+
     name = models.CharField(max_length=255, help_text="Наименование товара")
     description = models.CharField(max_length=1000, help_text="Описание товара")
     price = models.FloatField(default=0, help_text="Цена товара")
 
     stripe_product_id = models.CharField(max_length=255, help_text="ID продукта в stripe", blank=True)
     stripe_price_id = models.CharField(max_length=255, help_text="ID цены в stripe", blank=True)
+
+    currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCY, default=CURRENCY[0])
 
     def _set_stripe_product_id(self, product_id):
         self.stripe_product_id = product_id

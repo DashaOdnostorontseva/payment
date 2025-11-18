@@ -4,8 +4,8 @@ from .models import Item, Order, OrderItem, Discount, Tax
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
     model = Item
-    fields = ("name", "description", "price", "stripe_price_id", "stripe_product_id")
-    list_display = ("id", "name", "description", "price", "stripe_price_id", "stripe_product_id")
+    fields = ("name", "description", "price", "stripe_price_id", "stripe_product_id", "currency")
+    list_display = ("id", "name", "description", "price", "stripe_price_id", "stripe_product_id", "currency")
     search_fields = ("name", "description", "price")
     ordering = ("name", "price")
 

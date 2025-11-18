@@ -13,7 +13,7 @@ def create_stripe_product(item):
 def create_stripe_price(item, product_id):
     print(create_stripe_price)
     price = stripe.Price.create(
-        currency="rub",
+        currency=item.currency,
         unit_amount=int(item.price * 100),
         product=product_id
     )
