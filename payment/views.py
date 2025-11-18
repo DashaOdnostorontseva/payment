@@ -26,8 +26,8 @@ def pay_item(request, id):
         price_id = stripeScript.get_stripe_price_id(item)
         
         session = stripe.checkout.Session.create(
-            success_url=request.build_absolute_url("/success") ,
-            cancel_url=request.build_absolute_url("/cancel"),
+            success_url=request.build_absolute_uri("/success") ,
+            cancel_url=request.build_absolute_uri("/cancel"),
             line_items=[{"price": price_id, "quantity": 1}],
             mode="payment",
         )
