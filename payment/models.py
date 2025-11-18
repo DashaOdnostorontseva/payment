@@ -19,11 +19,40 @@ class Item(models.Model):
     def __str__(self):
         return self.name
     
+class Discount(models.Model):
+    name = models.CharField(max_length=255, help_text="Наименование скидки", blank=True)
+    amount = models.FloatField(default=0, help_text="Сумма скидки")
+    stripe_discount_id = models.CharField(max_length=255, help_text="ID скидки в stripe", blank=True)
+
+    def __str__(self):
+        display_name = f"{self.name}, сумма: {self.amount}"
+        return display_name
+    
+    def _set_stripe_discount_id(self, discount_id):
+        self.stripe_discount_id = discount_id
+        self.save(update_fields=["stripe_discount_id"])
+
+class Tax(models.Model):
+    name = models.CharField(max_length=255, help_text="Наименование налога", blank=True)
+    percent = models.FloatField(default=0, help_text="Налоговая ставка в процентах")
+    stripe_tax_id = models.CharField(max_length=255, help_text="ID налоговой ставки в stripe", blank=True)
+
+    def __str__(self):
+        display_name = f"{self.name}, ставка: {self.percent}%"
+        return display_name
+    
+    def _set_stripe_tax_id(self, tax_id):
+        self.stripe_tax_id = tax_id
+        self.save(update_fields=["stripe_tax_id"])
+    
 class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, help_text="Дата и время создания заказа")
     paid = models.BooleanField(default=False, help_text="Заказ оплачен")
     stripe_session_id = models.CharField(max_length=255, help_text="ID сессии в stripe", blank=True)
     total_amount = models.FloatField(default=0, help_text="Сумма заказа")
+
+    discount = models.ForeignKey(Discount, help_text="Размер скидки", on_delete=models.SET_NULL, blank=True, null=True)
+    tax = models.ForeignKey(Tax, help_text="Налоговая ставка", on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return "Order ID: " + str(self.id)
