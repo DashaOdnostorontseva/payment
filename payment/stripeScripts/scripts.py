@@ -50,14 +50,18 @@ def get_stripe_tax_ids(tax):
 
     return tax_rate.id
 
-def get_stripe_discount_id(discount):
+def get_stripe_discount_id(discount, currency):
+    if (discount.currency != currency):
+        print("different currency")
+        return
+    
     if discount.stripe_discount_id:
         return discount.stripe_discount_id
-    
+
     coupon = stripe.Coupon.create(
         name=discount.name,
         amount_off=int(discount.amount * 100),
-        currency="rub"
+        currency=discount.currency
     )
 
     discount._set_stripe_discount_id(coupon.id)

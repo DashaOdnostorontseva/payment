@@ -31,8 +31,8 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(Discount)
 class DiscountAdmin(admin.ModelAdmin):
     model = Discount
-    fields = ("name", "amount", "stripe_discount_id")
-    list_display = ("id", "name", "amount", "stripe_discount_id")
+    fields = ("name", "amount", "stripe_discount_id", "currency")
+    list_display = ("id", "name", "amount", "stripe_discount_id", "currency")
     search_fields = ("id", "name", "amount", "stripe_discount_id")
     ordering = ("id", "name", "amount")
 

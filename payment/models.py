@@ -24,9 +24,13 @@ class Item(models.Model):
         return self.name
     
 class Discount(models.Model):
+    CURRENCY = [("rub", "RUB"), ("eur", "EUR")]
+    
     name = models.CharField(max_length=255, help_text="Наименование скидки", blank=True)
     amount = models.FloatField(default=0, help_text="Сумма скидки")
     stripe_discount_id = models.CharField(max_length=255, help_text="ID скидки в stripe", blank=True)
+
+    currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCY, default=CURRENCY[0])
 
     def __str__(self):
         display_name = f"{self.name}, сумма: {self.amount}"

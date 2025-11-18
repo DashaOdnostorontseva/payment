@@ -73,15 +73,18 @@ def pay_order(request, id):
             return JsonResponse({"errorText": "В вашем заказе добавлены товары в разных валютах, оплата невозможна."})
 
         discount_id = None
+        discounts = list()
         if order.discount:
-            discount_id = stripeScript.get_stripe_discount_id(order.discount)
+            discount_id = stripeScript.get_stripe_discount_id(order.discount, list(currencies)[0])
+            if discount_id:
+                discounts = [{"coupon":discount_id}]
 
         session = stripe.checkout.Session.create(
             success_url=request.build_absolute_uri("/success") ,
             cancel_url=request.build_absolute_uri("/cancel"),
             line_items=items,
             mode="payment",
-            discounts=[{"coupon":discount_id}]
+            discounts=discounts
         )
 
         order._set_stripe_session_id(session.id)
