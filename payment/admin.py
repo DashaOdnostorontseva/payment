@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Item, Order, OrderItem
+from .models import Item, Order, OrderItem, Discount, Tax
 
 @admin.register(Item)
 class ItemAdmin(admin.ModelAdmin):
@@ -16,7 +16,7 @@ class OrderItemInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     model = Order
-    fields = ("paid", "stripe_session_id", "total_amount")
+    fields = ("paid", "stripe_session_id", "total_amount", "discount", "tax")
     list_display = ("id", "created_at", "paid", "stripe_session_id", "total_amount")
     search_fields = ("id", "created_at", "paid", "total_amount")
     ordering = ("id", "created_at", "total_amount")
@@ -27,3 +27,19 @@ class OrderAdmin(admin.ModelAdmin):
         super().save_related(request, form, formsets, change)
         order = form.instance
         order._update_total_amount()
+
+@admin.register(Discount)
+class DiscountAdmin(admin.ModelAdmin):
+    model = Discount
+    fields = ("name", "amount", "stripe_discount_id")
+    list_display = ("id", "name", "amount", "stripe_discount_id")
+    search_fields = ("id", "name", "amount", "stripe_discount_id")
+    ordering = ("id", "name", "amount")
+
+@admin.register(Tax)
+class TaxAdmin(admin.ModelAdmin):
+    model = Tax
+    fields = ("name", "percent", "stripe_tax_id")
+    list_display = ("id", "name", "percent", "stripe_tax_id")
+    search_fields = ("id", "name", "percent", "stripe_tax_id")
+    ordering = ("id", "name", "percent")
