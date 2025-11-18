@@ -3,5 +3,7 @@ from . import views
 
 urlpatterns = [
     path("item/<int:id>/", views.item, name="item"), 
-    path("buy/<int:id>/", views.buy, name="buy")    
+    path("pay_item/<int:id>/", views.pay_item, name="pay_item"),
+    path("order/<int:id>/", views.order, name="order"),
+    path("pay_order/<int:id>/", views.pay_order, name="pay_order")
 ]
