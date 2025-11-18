@@ -73,23 +73,64 @@ def item(request, id):
     else:
         return HttpResponseNotAllowed(["GET"])
     
+def get_stripe_tax_ids(tax):
+    if tax.stripe_tax_id:
+        return tax.stripe_tax_id
+    
+    tax_rate = stripe.TaxRate.create(
+        display_name=tax.name,
+        percentage=tax.percent,
+        inclusive=False,
+    )
+
+    tax._set_stripe_tax_id(tax_rate.id)
+
+    return tax_rate.id
+
+def get_stripe_discount_id(discount):
+    if discount.stripe_discount_id:
+        return discount.stripe_discount_id
+    
+    coupon = stripe.Coupon.create(
+        name=discount.name,
+        amount_off=int(discount.amount * 100),
+        currency="rub"
+    )
+
+    discount._set_stripe_discount_id(coupon.id)
+
+    return coupon.id
 
 def pay_order(request, id):
     if request.method == "GET":
         order = get_object_or_404(Order, id=id)
         items = list()
+        tax_id = None
+        discount_id = None
+
+        if order.tax:
+            tax_id = get_stripe_tax_ids(order.tax)
+        
+        if order.discount:
+            discount_id = get_stripe_discount_id(order.discount)
 
         for i in order.items.select_related("item").all():
             item = i.item
             price_id = get_stripe_price_id(item)
 
-            items.append({"price":price_id, "quantity":i.quantity})
+            item_data = {"price":price_id, "quantity":i.quantity}
+
+            if tax_id:
+                item_data["tax_rates"] = [tax_id]
+
+            items.append(item_data)
 
         session = stripe.checkout.Session.create(
             success_url="https://example.com/success",
             cancel_url="https://example.com/cancel",
             line_items=items,
             mode="payment",
+            discounts=[{"coupon":discount_id}]
         )
 
         order.stripe_session_id = session.id
