@@ -1,0 +1,201 @@
+[
+{
+  "model": "payment.item",
+  "pk": 1,
+  "fields": {
+    "name": "Iphone 17 Pro Max 256",
+    "description": "Iphone 17 Pro Max 256 гб",
+    "price": 120000.0,
+    "stripe_product_id": "prod_TRTwz5imyQ4GQH",
+    "stripe_price_id": "price_1SUaysHCURaG7sPws6FFXDE4",
+    "currency": "rub"
+  }
+},
+{
+  "model": "payment.item",
+  "pk": 2,
+  "fields": {
+    "name": "Iphone 17 Pro Max 512",
+    "description": "Iphone 17 Pro Max 512 гб",
+    "price": 150000.0,
+    "stripe_product_id": "prod_TRTw5DeHPmNS16",
+    "stripe_price_id": "price_1SUaybHCURaG7sPw3OpKxbhL",
+    "currency": "rub"
+  }
+},
+{
+  "model": "payment.item",
+  "pk": 3,
+  "fields": {
+    "name": "Iphone 17 Pro Max 1024",
+    "description": "Iphone 17 Pro Max 1 тб",
+    "price": 170000.0,
+    "stripe_product_id": "prod_TRTjz1tbBmPSQx",
+    "stripe_price_id": "price_1SUalhHCURaG7sPwdWG9bfwa",
+    "currency": "rub"
+  }
+},
+{
+  "model": "payment.item",
+  "pk": 4,
+  "fields": {
+    "name": "Iphone 17 Pro 256",
+    "description": "Iphone 17 Pro 256 гб",
+    "price": 1300.0,
+    "stripe_product_id": "prod_TRi7XKHMuTEFK3",
+    "stripe_price_id": "price_1SUoh9HCURaG7sPwwahat5tG",
+    "currency": "eur"
+  }
+},
+{
+  "model": "payment.tax",
+  "pk": 1,
+  "fields": {
+    "name": "НДС",
+    "percent": 20.0,
+    "stripe_tax_id": "txr_1SUo30HCURaG7sPwZDJOeuN5"
+  }
+},
+{
+  "model": "payment.discount",
+  "pk": 1,
+  "fields": {
+    "name": "Новичкам",
+    "amount": 5000.0,
+    "stripe_discount_id": "w5LJvjgv",
+    "currency": "rub"
+  }
+},
+{
+  "model": "payment.order",
+  "pk": 1,
+  "fields": {
+    "created_at": "2025-11-17T23:42:51.132Z",
+    "paid": false,
+    "stripe_session_id": "",
+    "total_amount": 170000.0,
+    "discount": null,
+    "tax": null
+  }
+},
+{
+  "model": "payment.order",
+  "pk": 2,
+  "fields": {
+    "created_at": "2025-11-17T23:44:55.245Z",
+    "paid": false,
+    "stripe_session_id": "cs_test_b1lCHx79U8nwhzAFExVycanLTcbyxn5lC50GSB4OS2rpRMxn9UetcDtORZ",
+    "total_amount": 440000.0,
+    "discount": null,
+    "tax": null
+  }
+},
+{
+  "model": "payment.order",
+  "pk": 3,
+  "fields": {
+    "created_at": "2025-11-17T23:49:49.824Z",
+    "paid": false,
+    "stripe_session_id": "cs_test_a1vn1n3BH6ItOFCymtJStPH0qkqFdUHdoQjiER9vrf1qBIwRMEFbD75exG",
+    "total_amount": 170000.0,
+    "discount": 1,
+    "tax": 1
+  }
+},
+{
+  "model": "payment.order",
+  "pk": 4,
+  "fields": {
+    "created_at": "2025-11-18T13:15:01.160Z",
+    "paid": false,
+    "stripe_session_id": "",
+    "total_amount": 172600.0,
+    "discount": null,
+    "tax": 1
+  }
+},
+{
+  "model": "payment.order",
+  "pk": 5,
+  "fields": {
+    "created_at": "2025-11-18T13:48:01.974Z",
+    "paid": false,
+    "stripe_session_id": "cs_test_a1Up80shYQpL5NFzT9qCigQQ0TKn2Ok50lLEqaoPaj1cyg3818ThIRGfsi",
+    "total_amount": 170000.0,
+    "discount": 1,
+    "tax": null
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 4,
+  "fields": {
+    "order": 2,
+    "item": 3,
+    "quantity": 1
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 5,
+  "fields": {
+    "order": 2,
+    "item": 1,
+    "quantity": 1
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 6,
+  "fields": {
+    "order": 2,
+    "item": 2,
+    "quantity": 1
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 7,
+  "fields": {
+    "order": 3,
+    "item": 3,
+    "quantity": 1
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 8,
+  "fields": {
+    "order": 4,
+    "item": 4,
+    "quantity": 2
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 9,
+  "fields": {
+    "order": 4,
+    "item": 3,
+    "quantity": 1
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 10,
+  "fields": {
+    "order": 5,
+    "item": 3,
+    "quantity": 1
+  }
+},
+{
+  "model": "payment.orderitem",
+  "pk": 11,
+  "fields": {
+    "order": 1,
+    "item": 3,
+    "quantity": 1
+  }
+}
+]
