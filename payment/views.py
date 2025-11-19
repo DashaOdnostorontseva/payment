@@ -131,20 +131,21 @@ def stripe_webhook(request):
                 )
                 print("endpoint_secret", event)
             except stripe.error.SignatureVerificationError as e:
-                print('⚠️  Webhook signature verification failed.' + str(e))
+                print('Webhook signature verification failed.' + str(e))
                 return HttpResponse(status=400)
 
     # Handle the event
-    if event.type == 'payment_intent.succeeded':
-        payment_intent = event.data.object # contains a stripe.PaymentIntent
+    if event.type == 'checkout.session.completed':
+        session = event.data.object # contains a stripe.PaymentIntent
         # Then define and call a method to handle the successful payment intent.
         # handle_payment_intent_succeeded(payment_intent)
-        print("payment_intent_succeeded", payment_intent.id)
-        order = Order.objects.get(stripe_session_id=payment_intent.id)
+        print("checkout.session.completed", session.id)
+        order = Order.objects.get(stripe_session_id=session.id)
         print("order_id", order.id)
-    elif event.type == 'payment_method.attached':
-        payment_method = event.data.object # contains a stripe.PaymentMethod
-        print("payment_method_attached", payment_method.id)
+        order._update_paid_status()
+    elif event.type == 'checkout.session.expired':
+        session = event.data.object # contains a stripe.PaymentMethod
+        print("checkout.session.expired", session.id)
         # Then define and call a method to handle the successful attachment of a PaymentMethod.
         # handle_payment_method_attached(payment_method)
     # ... handle other event types
