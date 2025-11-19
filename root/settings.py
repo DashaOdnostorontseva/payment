@@ -18,6 +18,7 @@ load_dotenv()
 
 PUBLISHABLE_KEY_STRIPE=os.getenv("PUBLISHABLE_KEY_STRIPE")
 SECRET_KEY_STRIPE=os.getenv("SECRET_KEY_STRIPE")
+WEBHOOK_KEY_STRIPE=os.getenv("WEBHOOK_KEY_STRIPE")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
