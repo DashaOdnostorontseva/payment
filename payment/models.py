@@ -81,6 +81,7 @@ class Order(models.Model):
         print("_update_status", self)
         if not self.paid:
             self.paid = True
+            self.save(update_fields=["paid"])
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, help_text="ID заказа из таблицы Order", on_delete=models.CASCADE, related_name="items")
