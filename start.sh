@@ -12,5 +12,8 @@ python manage.py loaddata payment/fixtures/initial_data.json || true
 echo "Create superuser (if not exists)..."
 python manage.py createsuperuser --noinput || true
 
+echo "Collect static files..."
+python manage.py collectstatic --noinput
+
 echo "Start gunicorn..."
 gunicorn root.wsgi:application
