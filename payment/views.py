@@ -142,7 +142,7 @@ def stripe_webhook(request):
         print("checkout.session.completed", session.id)
         order = Order.objects.get(stripe_session_id=session.id)
         print("order_id", order.id)
-        order._update_paid_status()
+        order._update_status()
     elif event.type == 'checkout.session.expired':
         session = event.data.object # contains a stripe.PaymentMethod
         print("checkout.session.expired", session.id)
