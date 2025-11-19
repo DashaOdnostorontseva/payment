@@ -77,6 +77,11 @@ class Order(models.Model):
         self.stripe_session_id = session_id
         self.save(update_fields=["stripe_session_id"])
 
+    def _update_status(self):
+        print("_update_status", self)
+        if not self.paid:
+            self.paid = True
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, help_text="ID заказа из таблицы Order", on_delete=models.CASCADE, related_name="items")
     item = models.ForeignKey(Item, help_text="ID товара из таблицы Item", on_delete=models.PROTECT)
