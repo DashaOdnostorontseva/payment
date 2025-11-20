@@ -1,18 +1,26 @@
-from django.shortcuts import render
+import logging
+
 import stripe
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.http import JsonResponse, HttpResponseNotAllowed, HttpResponse
-
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET, require_POST
 
 from .models import Item, Order
-from .stripeScripts import scripts as stripeScript
+from .stripeScripts import stripe_scripts
 
-import json
+logger = logging.getLogger(__name__)
 
 stripe.api_key = settings.SECRET_KEY_STRIPE
-endpoint_secret = settings.WEBHOOK_KEY_STRIPE
+STRIPE_WEBHOOK_SECRET = settings.WEBHOOK_KEY_STRIPE
+
+def build_checkout_urls(request):
+    return {
+        "success_url": request.build_absolute_uri(reverse("success")),
+        "cancel_url": request.build_absolute_uri(reverse("cancel")),
+    }
 
 def main(request):
     return render(request, "main.html")
@@ -23,133 +31,176 @@ def success(request):
 def cancel(request):
     return render(request, "cancel.html")
 
+@require_GET
 def pay_item(request, id):
-    print("call pay_item", pay_item)
-    if request.method == "GET":
-        item = get_object_or_404(Item, id=id)
-        
-        price_id = stripeScript.get_stripe_price_id(item)
-        
+    logger.debug(
+        "pay_item() called for item_id=%s, method=%s, path=%s",
+        id, request.method, request.path,
+    )
+    
+    item = get_object_or_404(Item, id=id)   
+    
+    price_id = stripe_scripts.get_stripe_price_id(item)
+    urls = build_checkout_urls(request)
+    try:
         session = stripe.checkout.Session.create(
-            success_url=request.build_absolute_uri("/success") ,
-            cancel_url=request.build_absolute_uri("/cancel"),
             line_items=[{"price": price_id, "quantity": 1}],
             mode="payment",
+            **urls,
         )
+    except stripe.error.StripeError:
+        logger.exception("Stripe error for item_id=%s", id)
+        return JsonResponse({"error": "Не удалось установить корректное соединение с сервисом Stripe"}, status=502)
 
-        print("session.url", session.url)
+    return JsonResponse({"sessionUrl": session.url})
 
-        return JsonResponse({"sessionUrl": session.url})
-    else:
-        return HttpResponseNotAllowed(["GET"])
 
+@require_GET
 def item(request, id):
-    print("call item", item)
-    if request.method == "GET":
-        item_obj = get_object_or_404(Item, id=id)
-        return render(request, "item.html", {"item":item_obj})
-    else:
-        return HttpResponseNotAllowed(["GET"])
-    
+    logger.debug(
+        "item() called for item_id=%s, method=%s, path=%s",
+        id, request.method, request.path,
+    )
+    item_obj = get_object_or_404(Item, id=id)
+    return render(request, "item.html", {"item":item_obj})
+
+@require_GET 
 def pay_order(request, id):
-    if request.method == "GET":
-        order = get_object_or_404(Order, id=id)
-        
-        tax_id = None
-        if order.tax:
-            tax_id = stripeScript.get_stripe_tax_ids(order.tax)
-        
-        items = list()
-        currencies = set()
-        for i in order.items.select_related("item").all():
-            item = i.item
-            price_id = stripeScript.get_stripe_price_id(item)
-
-            item_data = {"price":price_id, "quantity":i.quantity}
-
-            if tax_id:
-                item_data["tax_rates"] = [tax_id]
-
-            items.append(item_data)
-
-            currencies.add(item.currency)
-
-        if (len(currencies) > 1):
-            return JsonResponse({"errorText": "В вашем заказе добавлены товары в разных валютах, оплата невозможна."})
-
-        discount_id = None
-        discounts = list()
-        if order.discount:
-            discount_id = stripeScript.get_stripe_discount_id(order.discount, list(currencies)[0])
-            if discount_id:
-                discounts = [{"coupon":discount_id}]
-
-        session = stripe.checkout.Session.create(
-            success_url=request.build_absolute_uri("/success") ,
-            cancel_url=request.build_absolute_uri("/cancel"),
-            line_items=items,
-            mode="payment",
-            discounts=discounts
-        )
-
-        order._set_stripe_session_id(session.id)
-
-        return JsonResponse({"sessionUrl": session.url})
-    else:
-        return HttpResponseNotAllowed(["GET"])
+    logger.debug(
+        "pay_order() called for order_id=%s, method=%s, path=%s",
+        id, request.method, request.path,
+    )
+    order = get_object_or_404(Order, id=id)
     
-def order(request, id):
-    if request.method == "GET":
-        order = get_object_or_404(Order, id=id)
-        return render(request, "order.html", {"order":order})
-    else:
-        return HttpResponseNotAllowed(["GET"])
+    tax_id = None
+    if order.tax:
+        tax_id = stripe_scripts.get_stripe_tax_id(order.tax)
+    
+    items = list()
+    currencies = set()
 
-@csrf_exempt    
-def stripe_webhook(request):
-    print("stripe_webhook", stripe_webhook)
-    payload = request.body
-    event = None
+    for order_item in order.items.select_related("item").all():
+        item = order_item.item
+        price_id = stripe_scripts.get_stripe_price_id(item)
+
+        item_data = {
+            "price":price_id, 
+            "quantity":order_item.quantity
+        }
+
+        if tax_id:
+            item_data["tax_rates"] = [tax_id]
+
+        items.append(item_data)
+        currencies.add(item.currency)
+
+    if not items:
+        logger.warning("pay_order() called for empty order_id=%s", id)
+        return JsonResponse({"error": "Заказ не содержит товаров."}, status=400)
+
+    if len(currencies) > 1:
+        logger.warning(
+            "pay_order() called for order_id=%s, method=%s, path=%s. Order has multiple currencies: %s",
+            id, request.method, request.path, currencies
+        )
+        return JsonResponse({"error": "В вашем заказе добавлены товары в разных валютах, оплата невозможна."}, status=400)
+
+    currency = next(iter(currencies))
+
+    discounts = list()
+    if order.discount:
+        discount_id = stripe_scripts.get_stripe_discount_id(order.discount, currency)
+        if discount_id:
+            discounts = [{"coupon":discount_id}]
+        else:
+            logger.warning(
+                "Discount not configured in Stripe for order_id=%s, discount_id=%s",
+                id, order.discount_id,
+            )
+
+    urls = build_checkout_urls(request)
 
     try:
-        event = stripe.Event.construct_from(
-            json.loads(payload), stripe.api_key
+        session = stripe.checkout.Session.create(
+            line_items=items,
+            mode="payment",
+            discounts=discounts,
+            **urls,
         )
-        print(event)
-    except ValueError as e:
-        # Invalid payload
-        print("e: ", str(e))
+    except stripe.error.StripeError:
+        logger.exception("Stripe error for order_id=%s", id)
+        return JsonResponse({"error": "Не удалось установить корректное соединение с сервисом Stripe"}, status=502)
+
+    order._set_stripe_session_id(session.id)
+    logger.info(
+        "Stripe session created for order_id=%s, session_id=%s",
+        id, session.id,
+    )
+
+    return JsonResponse({"sessionUrl": session.url})
+
+@require_GET     
+def order(request, id):
+    logger.debug(
+        "order() called for order_id=%s, method=%s, path=%s",
+        id, request.method, request.path,
+    )
+    order = get_object_or_404(Order, id=id)
+    return render(request, "order.html", {"order":order})
+
+@csrf_exempt    
+@require_POST
+def stripe_webhook(request):
+    logger.debug(
+        "stripe_webhook() called with params: method=%s, path=%s",
+        request.method, request.path,
+    )
+
+    payload = request.body
+    sig_header = request.headers.get('stripe-signature')
+
+    if not STRIPE_WEBHOOK_SECRET:
+        logger.error("Stripe endpoint_secret is not configured")
+        return HttpResponse(status=500)
+
+    if not sig_header:
+        logger.error("Missing stripe-signature header in webhook request")
         return HttpResponse(status=400)
+    
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except stripe.error.SignatureVerificationError as e:
+        logger.exception("Webhook signature verification failed: %s", e)
+        return HttpResponse(status=400)
+        
+    event_type = event.type
 
-    if endpoint_secret:
-            # Only verify the event if you've defined an endpoint secret
-            # Otherwise, use the basic event deserialized with JSON
-            sig_header = request.headers.get('stripe-signature')
-            try:
-                event = stripe.Webhook.construct_event(
-                    payload, sig_header, endpoint_secret
-                )
-                print("endpoint_secret", event)
-            except stripe.error.SignatureVerificationError as e:
-                print('Webhook signature verification failed.' + str(e))
-                return HttpResponse(status=400)
+    if event_type == 'checkout.session.completed':
+        session_id = event.data.object.id
 
-    # Handle the event
-    if event.type == 'checkout.session.completed':
-        session = event.data.object # contains a stripe.PaymentIntent
-        # Then define and call a method to handle the successful payment intent.
-        # handle_payment_intent_succeeded(payment_intent)
-        print("checkout.session.completed", session.id)
-        order = Order.objects.get(stripe_session_id=session.id)
-        print("order_id", order.id)
+        logger.info("checkout.session.completed, session_id=%s", session_id)
+
+        try:
+            order = Order.objects.get(stripe_session_id=session_id)
+        except Order.DoesNotExist:
+            logger.error(
+                "Order with stripe_session_id=%s not found for webhook",
+                session_id,
+            )
+            return HttpResponse(status=200)
+        
+        logger.info("Updating order status for order_id=%s", order.id)
         order._update_status()
-    elif event.type == 'checkout.session.expired':
-        session = event.data.object # contains a stripe.PaymentMethod
-        print("checkout.session.expired", session.id)
-        # Then define and call a method to handle the successful attachment of a PaymentMethod.
-        # handle_payment_method_attached(payment_method)
-    # ... handle other event types
+
+    elif event_type == 'checkout.session.expired':
+        session_id = event.data.object.id
+        logger.info(
+            "checkout.session.expired, session_id=%s",
+            session_id
+        )
     else:
-        print('Unhandled event type {}'.format(event.type))
+        logger.info("Unhandled Stripe event type=%s", event_type)
 
     return HttpResponse(status=200)
