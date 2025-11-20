@@ -8,13 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputValue === '') {
             alert('id товара или заказа не может быть пустым')
         } else {
-            url = "item/" + inputValue
-            fetch(url, {
-                    method: 'GET'
-                })
-                .then(response => {
-                    window.location.href = response.url
-                })
+            window.location.href = "/item/" + inputValue;
         }
     })
 
@@ -24,13 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (inputValue === '') {
             alert('id товара или заказа не может быть пустым')
         } else {
-            url = "order/" + inputValue
-            fetch(url, {
-                    method: 'GET'
-                })
-                .then(response => {
-                    window.location.href = response.url
-                })
+            window.location.href = "/order/" + inputValue;
         }
     })
 })
