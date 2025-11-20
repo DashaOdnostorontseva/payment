@@ -1,8 +1,14 @@
 from django.db import models
 
-class Item(models.Model):
-    CURRENCY = [("rub", "RUB"), ("eur", "EUR")]
+CURRENCY_RUB = "rub"
+CURRENCY_EUR = "eur"
 
+CURRENCIES = [
+    (CURRENCY_RUB, "RUB"),
+    (CURRENCY_EUR, "EUR"),
+]
+
+class Item(models.Model):
     name = models.CharField(max_length=255, help_text="Наименование товара")
     description = models.CharField(max_length=1000, help_text="Описание товара")
     price = models.FloatField(default=0, help_text="Цена товара")
@@ -10,7 +16,7 @@ class Item(models.Model):
     stripe_product_id = models.CharField(max_length=255, help_text="ID продукта в stripe", blank=True)
     stripe_price_id = models.CharField(max_length=255, help_text="ID цены в stripe", blank=True)
 
-    currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCY, default=CURRENCY[0])
+    currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCIES, default=CURRENCY_RUB)
 
     def _set_stripe_product_id(self, product_id):
         self.stripe_product_id = product_id
@@ -30,7 +36,7 @@ class Discount(models.Model):
     amount = models.FloatField(default=0, help_text="Сумма скидки")
     stripe_discount_id = models.CharField(max_length=255, help_text="ID скидки в stripe", blank=True)
 
-    currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCY, default=CURRENCY[0])
+    currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCIES, default=CURRENCY_RUB)
 
     def __str__(self):
         display_name = f"{self.name}, сумма: {self.amount}"
@@ -63,7 +69,7 @@ class Order(models.Model):
     tax = models.ForeignKey(Tax, help_text="Налоговая ставка", on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
-        return "Order ID: " + str(self.id)
+        return f"Order ID: {self.id}"
     
     @property
     def total(self):
@@ -78,7 +84,6 @@ class Order(models.Model):
         self.save(update_fields=["stripe_session_id"])
 
     def _update_status(self):
-        print("_update_status", self)
         if not self.paid:
             self.paid = True
             self.save(update_fields=["paid"])
