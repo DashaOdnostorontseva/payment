@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = data.sessionUrl
             }
             else{
-                alert(data.errorText)
+                alert(data.error)
             }
         })
     })
