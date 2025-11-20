@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="ru">
   {% load static %}
-  <script src="{% static 'js/itemScript.js' %}"></script>
-  <script src="https://js.stripe.com/clover/stripe.js"></script>
   <head>
     <title>{{ item.name }}</title>
+    <script src="{% static 'js/payScript.js' %}"></script>
   </head>
   <body>
     <h1>{{ item.name }}</h1>
     <p>{{ item.description }}</p>
     <p>{{ item.price }} {{ item.currency }}</p>
-    <button id="buy-button" item-id ="{{ item.id }}">Купить</button>
+    <button id="buy-button" data-pay-type="item" data-id ="{{ item.id }}">Купить</button>
   </body>
 </html>
