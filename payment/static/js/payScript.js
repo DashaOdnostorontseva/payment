@@ -34,8 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.location.href = data.sessionUrl;
         })
         .catch(error => {
-            console.error('Ошибка при обращении к сервису оплаты:', error);
-            alert('Произошла ошибка при обращении к сервису оплаты');
+            alert('Произошла ошибка при обращении к сервису оплаты', error);
         });
     });
 });
