@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function () {
         basePath = '/pay_order/';
         errorText = 'Не удалось получить ссылку на оплату заказа';
     } else {
-        console.error('Неизвестный payType:', payType);
         return;
     }
 
