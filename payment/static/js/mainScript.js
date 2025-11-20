@@ -1,24 +1,25 @@
-document.addEventListener('DOMContentLoaded', function() {
-    var itemButton = document.getElementById('item');
-    var orderButton = document.getElementById('order');
+document.addEventListener('DOMContentLoaded', () => {
+    const itemButton = document.getElementById('item');
+    const orderButton = document.getElementById('order');
+    const inputElement = document.getElementById('input-id');
 
-    itemButton.addEventListener('click', function() {
-        const inputElement = document.getElementById('input-id');
-        const inputValue = inputElement.value;
-        if (inputValue === '') {
-            alert('id товара или заказа не может быть пустым')
-        } else {
-            window.location.href = "/item/" + inputValue;
-        }
-    })
+    function redirectIfValid(basePath) {
+        const value = inputElement.value.trim();
 
-    orderButton.addEventListener('click', function() {
-        const inputElement = document.getElementById('input-id');
-        const inputValue = inputElement.value;
-        if (inputValue === '') {
-            alert('id товара или заказа не может быть пустым')
-        } else {
-            window.location.href = "/order/" + inputValue;
+        if (!value) {
+            alert('id товара или заказа не может быть пустым');
+            return;
         }
-    })
-})
+
+        const url = basePath + '/' + value;
+        window.location.href = url;
+    }
+
+    itemButton.addEventListener('click', () => {
+        redirectIfValid('/item');
+    });
+
+    orderButton.addEventListener('click', () => {
+        redirectIfValid('/order');
+    });
+});
