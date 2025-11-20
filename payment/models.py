@@ -11,7 +11,7 @@ CURRENCIES = [
 class Item(models.Model):
     name = models.CharField(max_length=255, help_text="Наименование товара")
     description = models.CharField(max_length=1000, help_text="Описание товара")
-    price = models.FloatField(default=0, help_text="Цена товара")
+    price = models.DecimalField(default=0, help_text="Цена товара", decimal_places=2, max_digits=10)
 
     stripe_product_id = models.CharField(max_length=255, help_text="ID продукта в stripe", blank=True)
     stripe_price_id = models.CharField(max_length=255, help_text="ID цены в stripe", blank=True)
@@ -33,7 +33,7 @@ class Discount(models.Model):
     CURRENCY = [("rub", "RUB"), ("eur", "EUR")]
     
     name = models.CharField(max_length=255, help_text="Наименование скидки", blank=True)
-    amount = models.FloatField(default=0, help_text="Сумма скидки")
+    amount = models.DecimalField(default=0, help_text="Сумма скидки", decimal_places=2, max_digits=10)
     stripe_discount_id = models.CharField(max_length=255, help_text="ID скидки в stripe", blank=True)
 
     currency = models.CharField(max_length=3, help_text="Валюта", choices=CURRENCIES, default=CURRENCY_RUB)
@@ -48,7 +48,7 @@ class Discount(models.Model):
 
 class Tax(models.Model):
     name = models.CharField(max_length=255, help_text="Наименование налога", blank=True)
-    percent = models.FloatField(default=0, help_text="Налоговая ставка в процентах")
+    percent = models.DecimalField(default=0, help_text="Налоговая ставка в процентах", decimal_places=2, max_digits=10)
     stripe_tax_id = models.CharField(max_length=255, help_text="ID налоговой ставки в stripe", blank=True)
 
     def __str__(self):
@@ -63,7 +63,7 @@ class Order(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, help_text="Дата и время создания заказа")
     paid = models.BooleanField(default=False, help_text="Заказ оплачен")
     stripe_session_id = models.CharField(max_length=255, help_text="ID сессии в stripe", blank=True)
-    total_amount = models.FloatField(default=0, help_text="Сумма заказа")
+    total_amount = models.DecimalField(default=0, help_text="Сумма заказа", decimal_places=2, max_digits=10)
 
     discount = models.ForeignKey(Discount, help_text="Размер скидки", on_delete=models.SET_NULL, blank=True, null=True)
     tax = models.ForeignKey(Tax, help_text="Налоговая ставка", on_delete=models.SET_NULL, blank=True, null=True)
