@@ -146,6 +146,8 @@ def order(request, id):
         id, request.method, request.path,
     )
     order = get_object_or_404(Order, id=id)
+    if order.paid:
+        return render(request, "paid_order.html", {"order":order})
     return render(request, "order.html", {"order":order})
 
 @csrf_exempt    

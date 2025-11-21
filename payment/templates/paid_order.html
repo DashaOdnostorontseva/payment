@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ru">
+  {% load static %}
+  <head>
+    <title>Заказ {{ order.id }}</title>
+  </head>
+  <body>
+    <h1>Данный заказ уже оплачен, спасибо за Ваш заказ!</h1>
+    <h2>Номер заказа: {{ order.id }}</h2>
+    <ul>
+        {% for i in order.items.all %}
+            <li>
+                {{ i.item.name }} - {{ i.quantity }} шт. * {{ i.item.price }} {{ i.item.currency }} = {{ i.total }} {{ i.item.currency }}
+            </li>
+        {% endfor %}
+    </ul>
+    <p>Итого: {{ order.total_amount }}</p>
+  </body>
+</html>
