@@ -8,6 +8,7 @@ class ItemAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "description", "price", "stripe_price_id", "stripe_product_id", "currency")
     search_fields = ("name", "description", "price")
     ordering = ("name", "price")
+    readonly_fields = ("stripe_price_id", "stripe_product_id")
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
@@ -20,7 +21,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ("id", "created_at", "paid", "stripe_session_id", "total_amount")
     search_fields = ("id", "created_at", "paid", "total_amount")
     ordering = ("id", "created_at", "total_amount")
-    readonly_fields = ("total_amount",)
+    readonly_fields = ("paid", "total_amount", "stripe_session_id")
     inlines = [OrderItemInline]
 
     def save_related(self, request, form, formsets, change):
@@ -35,6 +36,7 @@ class DiscountAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "amount", "stripe_discount_id", "currency")
     search_fields = ("id", "name", "amount", "stripe_discount_id")
     ordering = ("id", "name", "amount")
+    readonly_fields = ("stripe_discount_id",)
 
 @admin.register(Tax)
 class TaxAdmin(admin.ModelAdmin):
@@ -43,3 +45,4 @@ class TaxAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "percent", "stripe_tax_id")
     search_fields = ("id", "name", "percent", "stripe_tax_id")
     ordering = ("id", "name", "percent")
+    readonly_fields = ("stripe_tax_id",)
