@@ -16,4 +16,4 @@ echo "Create superuser (if not exists)..."
 python manage.py createsuperuser --noinput || true
 
 echo "Start gunicorn..."
-gunicorn root.wsgi:application
+gunicorn root.wsgi:application --bind 0.0.0.0:8000
