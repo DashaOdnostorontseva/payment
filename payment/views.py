@@ -71,6 +71,9 @@ def pay_order(request, id):
         id, request.method, request.path,
     )
     order = get_object_or_404(Order, id=id)
+
+    if order.paid:
+        return JsonResponse({"error": "Данный заказ уже оплачен"}, status=400)
     
     tax_id = None
     if order.tax:
