@@ -71,8 +71,8 @@
   "pk": 1,
   "fields": {
     "created_at": "2025-11-17T23:42:51.132Z",
-    "paid": false,
-    "stripe_session_id": "",
+    "paid": true,
+    "stripe_session_id": "cs_test_a1xwMZSI3G2eorYodtxOKz5T4HVf2s96FBmh7vE13CjSnKeft5nIuNLq2o",
     "total_amount": 170000.0,
     "discount": null,
     "tax": null
